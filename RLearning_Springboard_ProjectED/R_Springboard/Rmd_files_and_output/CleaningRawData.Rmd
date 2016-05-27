@@ -1,0 +1,357 @@
+
+---
+    title: "Ethnic Density and Suicide in a Secondary Mental Healthcare Setting"
+    author: "andreafernandes"
+    date: "24 February 2016"
+    output:
+        html_document:
+          toc: true
+          depth: 10
+          theme: spacelab
+          highlight: tango
+---
+
+******
+##Background  
+
+Ethnic density is defined as the composition or percentage of each ethnictiy in a given area, usually within the lower super output area.  
+  
+_The ethnic density effect_ is the beneficial mental and physical effect observed [Becares et al, 2010] among individuals of ethnic minority living in areas of higher ethnic minority density (own ethnictiy or overall ethnic minority).   
+  
+Little research has been conducted on how the ethnic density effect impacts on suicidality (Shaw et al, 2012). This project uses clinical psychiatric data to measure ethnic density at diagnosis, and explore its effect on deaths by suicide.   
+
+******
+
+##Objective of this Rmd  
+  
+To clean the raw dataset and use it for further exploration of data, in other Rmd files.    
+  
+******
+  
+## Standard practice before starting anything on Rmd file.   
+  
+### 1) Cleaning the slate: Clearing history and setting wd before doing anything.  
+  
+      Command to clear old history - always do this  
+        
+```{r Chunk1: Cleaning the slate, results="hide", echo=TRUE}
+    rm(list=ls())
+    gc()
+```
+------
+
+      Always set working directory using setwd ("/a/b/c/").  
+      DOUBLE CHECK the file path of where you want to save your work,  
+      AND always check by running the chunk, to make sure if runs without errors.  
+```{r Chunk2, echo=FALSE}
+    setwd("/Users/andreafernandes/Desktop/Google Drive/Springboard_Data_Science_Course_2016/RLearning_Springboard_ProjectED/R_Springboard/Rmd_files_and_output/")
+
+#check chunk run
+#runs ok
+```
+
+
+------
+
+
+### 2) Package installation: Install any required packages and the standard ones
+
+      This is for installing package to read STATA files
+```{r Chunk3, results="hide", warning=FALSE, eval=TRUE}
+    library(foreign)
+```
+
+------
+
+      For date management: installing lubridate
+      http://www.r-bloggers.com/lubridate-working-with-date-and-time-in-r/
+```{r Chunk4, results="hide", warning=FALSE, eval=TRUE}
+    #install.packages("lubridate")
+    library(lubridate)
+```
+
+------
+
+      For data cleaning and tidying: installing dplyr
+```{r Chunk5, installing dplyr, results="hide", eval=TRUE, message=FALSE}
+    #install.packages("dplyr")
+    library("dplyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+```
+      This highlights some functions (e.g. "filter") will be masked. Keep in mind when doing a filter later. 
+
+------
+
+      To install code that will make creating data visuals easy
+```{r Chunk6, installing ggplot, results="hide", eval=TRUE} 
+    library("ggplot2", lib.loc="/usr/local/lib/R/3.2/site-library")
+```
+
+------
+
+
+### 3) Read in your raw data
+
+      "read.dta"" is the package that will read dta file.
+      Reading my data into a dataframe called "ethnicdensity_df"
+```{r Chunk7, Reading the data, results = "hide"}
+    ethnicdensity_df = read.dta("/Users/andreafernandes/Desktop/Google Drive/Springboard_Data_Science_Course_2016/RLearning_Springboard_ProjectED/R_Springboard/Raw_Data/For_Excel.dta")
+```
+
+------
+
+## Begin Cleaning the data
+
+### Have a look at the raw dataset
+
+      Here's a list of the variables and type included in the dataset
+```{r Chunk8, variables list, results="hide"}
+##listing the variables in the ethnicdensity_df dataset
+    str(ethnicdensity_df)
+```
+
+
+There are 4 types of data variables in this dataset
+
+**ID**: JunkID
+
+**Demographics**: Gender_Cleaned, DOB_Cleaned, Marital_Cleaned, ethnicitycleaned, imd_score 
+
+**Diagnosis**: primary_diagnosis, diagnosis_date, Schizophrenia_Diag, schizophrenia_diag_date, SchizoAffective_Diag, SchizoAffective_Diag_Date, Depressive_Diag, Depressive_Diag_Date, SubAbuse_Diag, SubAbuse_Diag_Date, Manic_Diag, Manic_Diag_Date, Bipolar_Diag, Bipolar_Diag_Date
+
+**Cause of Death**: ons_date_of_death, Suicide, ICD10_UnderlyingCause
+
+**Ethnic Density data variables**: LSOAClosestToDiagnosis, LSOA11, lsoa01,  LSOA_NAME, All_Usual_Residents, White_English_Welsh_Scottish_Nor: AP
+
+
+
+------
+
+
+### Make a copy of the Raw dataset and Start Cleaning the dataset
+
+        
+        i) copy raw dataset into a new dataset "EDclean". "EDclean" is the dataset that will be cleaned, copied or edited
+        i) Use dplyr to clean dataset.
+        ii) Rename variables for example: "ethnic density percentage" and "ethnic density count" columns
+        iii) check date formats
+        iv) drop redundant variables or duplicate variables
+        v) create categorical variables
+        vi) Create the Ethnic Density Score for each individual
+        
+*****
+
+Copy dataset to "EDclean"
+```{r Chunk9, copy the dataset, results = "hide"}
+    EDclean <- tbl_df(ethnicdensity_df)
+
+    print(EDclean)
+
+    ##prints number of observation and number of variables
+    dim(EDclean)
+    ###47581 observations, 67 variables
+
+    data.frame(head(EDclean))
+```
+
+------
+
+Renaming variables
+```{r Chunk10, results="hide", echo=TRUE}
+#renaming variables first...
+EDclean <- EDclean %>% 
+  #Rename each ethnic density column
+                rename(TotalResidentsInLSOA = All_Usual_Residents,
+                       WhiteBrit_EDPercent  = G, 
+                       WhiteIrish_EDPercent = White_Irish_Percentage, 
+                       OtherWhite_EDPercent = White_Other_White_GypsyIrishTrav, 
+                       WhiteBlackCarib_EDPercent = P, 
+                       WhiteBlackAfri_EDPercent = R, 
+                       WhiteAsian_EDPercent = T, 
+                       OtherMixed_EDPercent = V, 
+                       BritIndian_EDPercent = Asian_Asian_British_Indian_Perce, 
+                       BritPakistani_EDPercent = Asian_Asian_British_Pakistani_Pe, 
+                       BritBangladeshi_EDPercent = AB, 
+                       BritChinese_EDPercent = Asian_Asian_British_Chinese_Perc,
+                       OtherAsian_EDPercent = Asian_Asian_British_OtherAsian_P, 
+                       African_EDPercent = AH, 
+                       Caribbean_EDPercent =  AJ, 
+                       OtherBlack_EDPercent = AL, 
+                       WhiteBrit_Residents = White_English_Welsh_Scottish_Nor, 
+                       TotalIrish_Residents = White_Irish_Count, 
+                       OtherWhite_Residents = White_Gypsy_Irish_Traveller_Coun, 
+                       MixedCaribbean_Residents = Mixed_Multiple_Ethnic_Groups_Whi, 
+                       MixedAsian_Residents = S, 
+                       OtherMixed_Residents = Mixed_Multiple_Ethnic_Groups_Oth, 
+                       BritIndian_Residents = Asian_Asian_British_Indian_Count, 
+                       BritPakistani_Residents = Asian_Asian_British_Pakistani_Co, 
+                       BritBangladeshi_Residents = Asian_Asian_British_Bangladeshi_, 
+                       BritChinese_Residents = Asian_Asian_British_Chinese_Coun, 
+                       OtherAsian_Residents = Asian_Asian_British_OtherAsian_C, 
+                       African_Residents = Black_African_Caribbean_BlackBr, 
+                       Caribbean_Residents = Black_African_Caribbean_Black_Br, 
+                       OtherBlack_Residents = AK, 
+                       OtherEthnicity_Residents = Other_Ethnic_Group_AnyOtherEthni) 
+```
+
+------
+
+      
+```{r Chunkya, results="hide", echo=FALSE}
+#checking new variables
+data.frame(tail(EDclean))
+dim(EDclean)
+#47581 observations, 43 variables
+```
+
+
+Assigning Ethnic Density Scores: 
+
+Note on Ethnic Density Score: The main exposure variable of the dataset is Ethnicdensity score. Ethnic density is a score that defines the percentage of that makes up ethnicity of the individual within a give area. At the moment, each individual in the dataset is assigned to every ethnicity percentage relevant to their area of residence at diagnosis. 
+To assign own ethnicity ethnic density to each individual (in one column) we need to create a new variable. 
+e.g. if ID is caribbean, then assign Caribbean_ED value.
+```{r Chunk12, generating ethnicdensityscore}
+EDclean <- EDclean %>% mutate(ethnicdensityscore = ifelse(ethnicitycleaned == "British (A)", WhiteBrit_EDPercent, 
+                          ifelse(ethnicitycleaned == "African (N)", African_EDPercent, 
+                          ifelse(ethnicitycleaned == "Irish (B)", WhiteIrish_EDPercent, 
+                          ifelse(ethnicitycleaned == "Any other Asian background (L)", OtherAsian_EDPercent, 
+                          ifelse(ethnicitycleaned == "Any other black background (P)", OtherBlack_EDPercent,
+                          ifelse(ethnicitycleaned == "Any other mixed background (G)", OtherMixed_EDPercent,
+                          ifelse(ethnicitycleaned == "Any other white background (C)", OtherWhite_EDPercent,
+                          ifelse(ethnicitycleaned == "Bangladeshi (K)", BritBangladeshi_EDPercent, 
+                          ifelse(ethnicitycleaned == "Caribbean (M)", Caribbean_EDPercent,
+                          ifelse(ethnicitycleaned == "Chinese (R)", BritChinese_EDPercent,
+                          ifelse(ethnicitycleaned == "Indian (H)", BritIndian_EDPercent,
+                          ifelse(ethnicitycleaned == "Pakistani (J)", BritPakistani_EDPercent,
+                          ifelse(ethnicitycleaned == "White and Asian (F)", WhiteAsian_EDPercent,
+                          ifelse(ethnicitycleaned == "White and Black African (E)", WhiteBlackAfri_EDPercent,
+                          ifelse(ethnicitycleaned == "White and black Caribbean (D)", WhiteBlackCarib_EDPercent,  " " )))))))))))))))) %>%
+              mutate(ethnicdensityscore = as.numeric(ethnicdensityscore)) 
+
+data.frame(tail(EDclean$ethnicdensityscore))
+```
+
+------
+
+
+Create variable "Age at Diagnosis" for each individual
+```{r Chunk13, "Age at Diagnosis"}
+#Selecting a few variables from previous EDscores database to clean old and create new date and age variables
+EDclean <- EDclean %>%
+
+#First format necessary date variables to make sure they are in date format
+  mutate(dateofbirth = as.Date(DOB_Cleaned, format = "%d/%m/%y")) %>% 
+  mutate(diagnosisdate = as.Date(diagnosis_date, format = "%d/%m/%y")) %>%
+  mutate(dateofdeath = as.Date(ons_date_of_death, format = "%d/%m/%y")) %>%
+
+#Then create age at diagnosis and age at Suicide using simple substractions
+  mutate(ageatdiagnosis = year(diagnosisdate) - year(dateofbirth)) %>%
+  mutate(ageatSuicide = year(dateofdeath) - year(dateofbirth)) %>%
+
+#Then create an age category group
+         mutate(agegroups = ifelse(ageatdiagnosis %in% 0:17, "0-17",
+                            ifelse(ageatdiagnosis %in% 18:25, "18-25",
+                            ifelse(ageatdiagnosis %in% 26:40, "26-40",
+                            ifelse(ageatdiagnosis %in% 41:60, "41-60",
+                            ifelse(ageatdiagnosis %in% 61:104, "61-100",  "unknown"))))))
+```
+
+Create a new "Borough" variable 
+Assign each person to one of five boroughs: Croydon, Lewisham, Southwark, Lambeth and Other
+```{r Chunk9, results="hide", echo=FALSE}
+table(EDclean$LSOA_NAME)
+
+
+  
+EDclean <- EDclean %>% 
+  mutate (LSOA_4boroughs = ifelse(grepl("^Southw", EDclean$LSOA_NAME) %in% TRUE, "SOUTHWARK", 
+                           ifelse(grepl("^Croy", EDclean$LSOA_NAME) %in% TRUE, "CROYDON",
+                           ifelse(grepl("^Lambe", EDclean$LSOA_NAME) %in% TRUE, "LAMBETH",
+                           ifelse(grepl("^Lewish", EDclean$LSOA_NAME) %in% TRUE, "LEWSIHAM", "OTHER")))))
+
+data.frame(head((EDclean)))
+```
+
+
+Number of people in each of the 4 boroughs (and the Other category borough)
+```{r, chunk10, print table}
+table(EDclean$LSOA_4boroughs)
+```
+
+------
+
+
+Create flag variables for individuals:
+i) who died by suicide
+ii) who died of other causes
+iii) who are not dead
+```{r Chunk11, results="hide",echo=FALSE}
+table(EDclean$Suicide) #263 deaths by suicide
+table(is.na(EDclean$Suicide)) #no NA values
+
+table(EDclean$ons_date_of_death)
+table(is.na(EDclean$ons_date_of_death)) # 42271 NA values; 5310 date of deaths
+
+table(EDclean$ethnicdensityscore)
+table(is.na(EDclean$ethnicdensityscore)) #no NA values
+```
+
+```{r chunk12, results="hide", echo=FALSE}
+EDclean <- EDclean %>% 
+                  mutate(ons_date_of_death = as.Date(ons_date_of_death, format = "%d/%m/%Y"))
+
+table(is.na(EDclean$ons_date_of_death)) 
+
+str(EDclean)
+```
+
+
+```{r Chunk13, results = "hide", echo=FALSE}
+EDclean <- EDclean %>% 
+  mutate(DeathBy = ifelse(Suicide == 1, "Suicide",
+                   ifelse(year(ons_date_of_death) > 1901 & Suicide == 0, "OtherCause", NA))) 
+```
+
+```{r Chunkad4, results="hide", echo=FALSE}
+table(is.na(EDclean$DeathBy)) #there are still NAs, which need to be change to "Not Died"
+EDclean$DeathBy[is.na(EDclean$DeathBy)] <- "NotDied"
+```
+
+------
+
+
+### Dataset Check
+Check if this is the dataset you will use and if you have all the variables you need. 
+```{r, Chunk14, echo=TRUE, results ="hide"}
+
+#checking if any of the age values are odd or non-numeric using function "table" 
+table(EDclean$ageatdiagnosis)
+#looks ok
+table(EDclean$diagnosisdate)
+#looks ok 
+table(EDclean$dateofbirth)
+#looks ok 
+
+#disadvantage of using table function is it does not count "NA" or missing values
+```
+```{r, results="hide"}
+table(EDclean$agegroups)
+#there is one unknown
+#using which to find out which observation has unknonw
+which(EDclean$agegroups == "unknown")
+
+#it is row number 45501
+
+filter(EDclean) [45501,]
+filter(EDclean) [45501, 44]
+#i'll leave the faulty row for now
+```
+
+```{r Chunk 16, echo=TRUE, results="hide"}
+data.frame(tail(EDclean))
+str(EDclean)
+```
+
+```{r Chunk17, results="hide"}
+save(EDclean, file = "EDclean.Rdata")
+#To load file: load(file = "/Users/andreafernandes/Desktop/Google Drive/Springboard_Data_Science_Course_2016/RLearning_Springboard_ProjectED/R_Springboard/Raw_Data/")
+

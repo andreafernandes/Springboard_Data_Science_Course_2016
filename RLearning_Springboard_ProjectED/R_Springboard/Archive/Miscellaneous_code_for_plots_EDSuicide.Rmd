@@ -1,0 +1,95 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####Doing some counts
+```{r, results="hide"}
+EDAge %>%
+  select(agegroups, Suicide) %>%
+  group_by(agegroups, Suicide) %>%
+  summarise(N = n())
+
+EDAgeBySuicide <- filter(EDAge, Suicide == 1) 
+
+
+EDAgeBySuicide %>%
+  select(agegroups, Suicide) %>%
+  count(agegroups) %>%
+  summarise(N = n())
+#need to figure out how to produce a single print of the number of people in each age group and number of individuals who have died by suicide
+```
+
+
+##Exploring the exposure Variable: Ethnic Density Scores
+
+```{r Using EDscores table, results = "hide"}
+ED_summarise_output <- EDscores %>% summarise(Min = min(ethnicdensityscore,na.rm=TRUE),
+            Median = median(ethnicdensityscore, na.rm=TRUE),
+            Mean = mean(ethnicdensityscore, na.rm=TRUE),
+            Var = var(ethnicdensityscore, na.rm=TRUE),
+            SD = sd(ethnicdensityscore, na.rm=TRUE),
+            Max = max(ethnicdensityscore, na.rm=TRUE),
+            N = n())
+  
+#print(ED_summarise_output)
+
+
+qplot(data=EDscores,x=ethnicdensityscore, main = "Ethnic Density", binwidth = 10)
+
+#qplot(x, y, data=, color=, shape=, size=, alpha=, geom=, method=, formula=, facets=, xlim=, ylim= xlab=, ylab=, main=, sub=) 
+plot(EDscores$ethnicdensityscore)
+
+
+qplot(ethnicitycleaned, ethnicdensityscore, data=EDscores, geom=c("jitter"), main="Ethnic Density Score by Ethnicity",
+   ylab="ethnic density scores", xlab="ethnic groups") + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+
+
+qplot(ethnicitycleaned, ethnicdensityscore, data=EDscores, geom=c("boxplot"), main="Ethnic Density Score by Ethnicity",
+   ylab="ethnic density scores", xlab="ethnic groups") + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+
+
+qplot(ethnicitycleaned, ethnicdensityscore, data=EDscores, geom=c("boxplot"), main="Ethnic Density Score by Ethnicity",
+   ylab="ethnic density scores", xlab="ethnic groups") + geom_point(alpha=0.5) + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+#https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
+
+
+qplot(ethnicdensityscore, ethnicitycleaned ,
+      data=EDscores, 
+      #geom_boxplot(),
+      #fill=ethnicitycleaned, 
+      main="",
+      xlab="ethnic density scores", 
+      #alpha= 0.05,
+      #size = 0.01,
+      ylab="ethnic groups") + facet_grid(Suicide ~ .) 
+```
+
+

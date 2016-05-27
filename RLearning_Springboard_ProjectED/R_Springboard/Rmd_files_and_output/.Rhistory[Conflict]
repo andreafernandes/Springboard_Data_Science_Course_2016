@@ -1,0 +1,512 @@
+ifelse(ethnicitycleaned %in% "Caribbean (M)", 6, NA))))))))))))))))))) %>%
+mutate(dateofbirth = as.Date(cleaneddateofbirth, format = "%d/%m/%Y")) %>%
+mutate(date = as.Date("01/03/2014", format = "%d/%m/%Y")) %>%
+mutate(age = year(date) - year(dateofbirth)) %>%
+mutate(agegroups = cut(age, breaks=c(0, 18, 25, 40,  60, 100, 200))) %>%
+mutate(Marital_Status_ID = ifelse(Marital_Status_ID %in% "Cohabiting", 2,
+ifelse(Marital_Status_ID %in% "Divorced", 3,
+ifelse(Marital_Status_ID %in% "Divorced/Civil Partnership Dissolved", 3,
+ifelse(Marital_Status_ID %in% "Married", 2,
+ifelse(Marital_Status_ID %in% "Married/Civil Partner", 2,
+ifelse(Marital_Status_ID %in% "Not Disclosed", NA,
+ifelse(Marital_Status_ID %in% "Not Known", NA,
+ifelse(Marital_Status_ID %in% "Separated", 3,
+ifelse(Marital_Status_ID %in% "Single", 1,
+ifelse(Marital_Status_ID %in% "Widowed", 4,
+ifelse(Marital_Status_ID %in% "Widowed/Surviving Civil Partner", 4, NA)))))))))))) %>%
+mutate(LatestNumberOfSpells = ifelse(LatestNumberOfSpells %in% 2, 1, 2)) %>%
+#LatestNumberOfSpells = 1 : 2 or less spells
+#LatestNumberOfSpells = 2 : 3 or more spells
+#mutate(SessionNumber = ifelse(SessionNumber %in% 1:5, 1,
+#ifelse(SessionNumber %in% 6:10, 2,
+#ifelse(SessionNumber %in% 11:100, 3,
+#ifelse(SessionNumber %in% "final", 3, NA))))) %>%
+mutate(AntiPsychoticFlag = ifelse(AntiPsychoticFlag %in% NA, 1, 2 )) %>%
+#1 is not on Antipsychotic
+#2 is on Antipsychotic
+mutate(PastADdate = as.Date(PastADdate, format = "%d/%m/%Y")) %>%
+mutate(PastADdate = ifelse(PastADdate %in% NA, 1, 2)) %>%
+#2 = on AD in the past 6 months
+#1 = not on AD in the past 6 months
+mutate(LifetimeSelfHarm = ifelse(PBR_Repeat_Self_Harm_ID %in% 0, 1,
+ifelse(PBR_Repeat_Self_Harm_ID %in% 1, 1,
+ifelse(PBR_Repeat_Self_Harm_ID %in% 2, 2,
+ifelse(PBR_Repeat_Self_Harm_ID %in% 3, 3,
+ifelse(PBR_Repeat_Self_Harm_ID %in% 4, 3, NA)))))) %>%
+mutate(RecentSelfHarm = ifelse(Self_Injury_Score_ID %in% 0, 1,
+ifelse(Self_Injury_Score_ID %in% 1, 1,
+ifelse(Self_Injury_Score_ID %in% 2, 2,
+ifelse(Self_Injury_Score_ID %in% 3, 3,
+ifelse(Self_Injury_Score_ID %in% 4, 3, NA)))))) %>%
+mutate(RecentAgitation = ifelse(Agitated_Behaviour_Score_ID %in% 0, 1,
+ifelse(Agitated_Behaviour_Score_ID %in% 1, 1,
+ifelse(Agitated_Behaviour_Score_ID %in% 2, 2,
+ifelse(Agitated_Behaviour_Score_ID %in% 3, 3,
+ifelse(Agitated_Behaviour_Score_ID %in% 4, 3, NA)))))) %>%
+mutate(RecentPhysicalIllness = ifelse(Physical_Illness_Score_ID %in% 0, 1,
+ifelse(Physical_Illness_Score_ID %in% 1, 1,
+ifelse(Physical_Illness_Score_ID %in% 2, 2,
+ifelse(Physical_Illness_Score_ID %in% 3, 3,
+ifelse(Physical_Illness_Score_ID %in% 4, 3, NA)))))) %>%
+mutate(RecentDepressedMood = ifelse(Depressed_Mood_Score_ID %in% 0, 1,
+ifelse(Depressed_Mood_Score_ID %in% 1, 1,
+ifelse(Depressed_Mood_Score_ID %in% 2, 2,
+ifelse(Depressed_Mood_Score_ID %in% 3, 3,
+ifelse(Depressed_Mood_Score_ID %in% 4, 3, NA)))))) %>%
+mutate(RecentDailyLiving = ifelse(Daily_Living_Problems_Score_ID %in% 0, 1,
+ifelse(Daily_Living_Problems_Score_ID %in% 1, 1,
+ifelse(Daily_Living_Problems_Score_ID %in% 2, 2,
+ifelse(Daily_Living_Problems_Score_ID %in% 3, 3,
+ifelse(Daily_Living_Problems_Score_ID %in% 4, 3, NA)))))) %>%
+mutate(RecentOccupationalProblems = ifelse(Occupational_Problems_Score_ID %in% 0, 1,
+ifelse(Occupational_Problems_Score_ID %in% 1, 1,
+ifelse(Occupational_Problems_Score_ID %in% 2, 2,
+ifelse(Occupational_Problems_Score_ID %in% 3, 3,
+ifelse(Occupational_Problems_Score_ID %in% 4, 3, NA)))))) %>%
+mutate(RecentRelationshipProblems = ifelse(Relationship_Problems_Score_ID %in% 0, 1,
+ifelse(Relationship_Problems_Score_ID %in% 1, 1,
+ifelse(Relationship_Problems_Score_ID %in% 2, 2,
+ifelse(Relationship_Problems_Score_ID %in% 3, 3,
+ifelse(Relationship_Problems_Score_ID %in% 4, 3, NA)))))) %>%
+mutate(RecentHallucinations = ifelse(Hallucinations_Score_ID %in% 0, 1,
+ifelse(Hallucinations_Score_ID %in% 1, 1,
+ifelse(Hallucinations_Score_ID %in% 2, 2,
+ifelse(Hallucinations_Score_ID %in% 3, 3,
+ifelse(Hallucinations_Score_ID %in% 4, 3, NA)))))) %>%
+mutate(MentalHealthComorbidities = ifelse(Other_Mental_Problems_Score_ID %in% 0, 1,
+ifelse(Other_Mental_Problems_Score_ID %in% 1, 1,
+ifelse(Other_Mental_Problems_Score_ID %in% 2, 2,
+ifelse(Other_Mental_Problems_Score_ID %in% 3, 3,
+ifelse(Other_Mental_Problems_Score_ID %in% 4, 3, NA))))))
+#checking out the variables
+table(ADSum$OtherAD_MirtazapineFlag)
+table(ADSum$TCA_DOXEPINFlag)
+table(ADSum$SumofAD)
+table(ADSum$agegroups)
+table(ADSum$MentalHealthComorbidities)
+str(ADSum)
+AnyAD <- ADSum %>%
+select(a, PatientonAD,
+ethnicitycleaned,
+cleaneddateofbirth,
+Gender_ID,
+Marital_Status_ID,
+LatestNumberOfSpells,
+-Accepted_Date,
+-Rating_Date,
+Problem_Drinking_Drugs_Score_ID,
+-Cognitive_Problems_Score_ID,
+RecentPhysicalIllness,
+RecentHallucinations,
+RecentSelfHarm,
+RecentAgitation,
+MentalHealthComorbidities,
+RecentRelationshipProblems,
+RecentDailyLiving,
+RecentOccupationalProblems,
+LifetimeSelfHarm,
+-noncompliant,
+-compliant,
+-PTSessionDate, #too few people with data on their CBT session
+-SessionNumber,
+AntiPsychoticFlag,
+-CurrentLithium,
+-CurrentLithiumdate,
+LithiumFlag,
+PastADdate)
+str(AnyAD)
+table(AnyAD$Daily_Living_Problems_Score_ID)
+table(ADProfiling_raw$SessionNumber)
+table(AnyAD$PatientonAD)
+AnyAD$Gender_ID <- factor(AnyAD$Gender_ID)
+AnyAD$Marital_Status_ID <- factor(AnyAD$Marital_Status_ID)
+AnyAD$ethnicitycleaned <- factor(AnyAD$ethnicitycleaned)
+AnyAD$agegroups <- factor(AnyAD$agegroups)
+AnyAD$LatestNumberOfSpells <- factor(AnyAD$LatestNumberOfSpells)
+AnyAD$LithiumFlag <- factor(AnyAD$LithiumFlag)
+AnyAD$AntiPsychoticFlag <- factor(AnyAD$AntiPsychoticFlag)
+AnyAD$PastADdate <- factor(AnyAD$PastADdate)
+AnyAD$LifetimeSelfHarm  <- factor(AnyAD$LifetimeSelfHarm )
+AnyAD$RecentSelfHarm <- factor(AnyAD$RecentSelfHarm)
+AnyAD$RecentAgitation <- factor(AnyAD$RecentAgitation)
+AnyAD$RecentPhysicalIllness <- factor(AnyAD$RecentPhysicalIllness)
+AnyAD$RecentDailyLiving <- factor(AnyAD$RecentDailyLiving)
+AnyAD$RecentDepressedMood <- factor(AnyAD$RecentDepressedMood)
+AnyAD$RecentOccupationalProblems <- factor(AnyAD$RecentOccupationalProblems)
+AnyAD$RecentRelationshipProblems <- factor(AnyAD$RecentRelationshipProblems)
+AnyAD$MentalHealthComorbidities <- factor(AnyAD$MentalHealthComorbidities)
+AnyAD$RecentHallucinations <- factor(AnyAD$RecentHallucinations)
+fit <- glm(PatientonAD ~ Gender_ID + agegroups, data=AnyAD)
+summary(fit)
+fit <- glm(PatientonAD ~ Gender_ID + agegroups + Marital_Status_ID + ethnicitycleaned, data=AnyAD)
+summary(fit)
+fit <- glm(PatientonAD ~ Gender_ID + agegroups + LatestNumberOfSpells + LithiumFlag + AntiPsychoticFlag + RecentHallucinations, data=AnyAD)
+summary(fit)
+fit <- glm(PatientonAD ~ Gender_ID + agegroups + PastADdate, data=AnyAD)
+summary(fit)
+fit <- glm(PatientonAD ~ Gender_ID + agegroups + LifetimeSelfHarm + MentalHealthComorbidities, data=AnyAD)
+summary(fit)
+fit <- glm(PatientonAD ~ Gender_ID + agegroups + RecentSelfHarm + RecentAgitation + RecentPhysicalIllness + RecentRelationshipProblems + RecentOccupationalProblems + RecentDepressedMood + RecentDailyLiving, data=AnyAD)
+summary(fit)
+fit <- glm(PatientonAD ~ Gender_ID + agegroups, family = binomial(logit), data=AnyAD)
+summary(fit)
+fit <- glm(PatientonAD ~ Gender_ID + agegroups, data=AnyAD)
+summary(fit)
+exp(0.329940)
+library(broom)
+?"broom"
+tidy(summary(fit))
+tidy(fit)
+x <- tidy(fit)
+x$OR <- exp(x$estimate)
+x
+log(1.39)
+confint(fit)
+exp(confint(fit))
+x$CI <- exp(confint(fit))
+x
+tidy(x)
+?tidy
+write.csv(x, file="xxxxxxx.csv")
+getwd()
+View(x)
+View(messyADnames)
+save(x, file="xxxx.RData", compress=TRUE)
+glance(fit)
+summary(fit)
+plot(fit)
+plot(fit)
+stepAIC(fit)
+library(MASS)
+stepAIC(fit)
+?stepAIC
+stepAIC(fit, direction="both")
+anova(fit)
+tidy(anova(fit))
+glance(fit)
+anova(fit)
+?anova
+qplot(fit)
+library(ggplot2)
+qplot(fit)
+qplot(fit)
+setwd("/Users/andreafernandes/Google Drive/2_Research/PhD work/PhD work/Phase_2_Data_Extraction/ADProfilingStudy/R_work_on_Profiling")
+library(foreign)
+library("dplyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+library(lubridate)
+library("tidyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+library("ggplot2", lib.loc="/usr/local/lib/R/3.2/site-library")
+library(broom)
+library(MASS)
+getwd()
+setwd("/Users/andreafernandes/Google Drive/2_Research/PhD work/PhD work/Phase_2_D
+")"
+""
+setwd("/Users/andreafernandes/Google Drive/2_Research/PhD work/PhD work/Phase_2_Data_Extraction/ADProfilingStudy/R_work_on_Profiling")
+gc()
+setwd("/Users/andreafernandes/Google Drive/2_Research/PhD work/PhD work/Phase_2_Data_Extraction/ADProfilingStudy/R_work_on_Profiling")
+dir()
+rm(list=ls())
+rm(list=ls())
+gc()
+setwd("/Users/andreafernandes/Google Drive/2_Research/PhD work/PhD work/Phase_2_Data_Extraction/ADProfilingStudy/R_work_on_Profiling")
+boxplot(EDclean$WhiteBrit_EDPercent, horizontal = TRUE, main = "Total Own-group Ethnic Density Spread")
+## Standard practice before starting anything on Rmd file.
+### 1) Cleaning the slate: Clearing history and setting wd before doing anything.
+#Command to clear old history - always do this
+rm(list=ls())
+gc()
+#Always set working directory using setwd ("/a/b/c/").
+#DOUBLE CHECK the file path of where you want to save your work,
+#and check by running the chunk, to make sure if runs without errors.
+setwd("/Users/andreafernandes/Desktop/Google Drive/Springboard_Data_Science_Course_2016/RLearning_Springboard_ProjectED/R_Springboard/Rmd_files_and_output/")
+#check chunk run
+#runs ok
+### 2) Package installation: Install any required packages and the standard ones
+#This is for installing package to read STATA files
+library(foreign)
+# For date management: installing lubridate
+# http://www.r-bloggers.com/lubridate-working-with-date-and-time-in-r/
+#install.packages("lubridate")
+library(lubridate)
+#For data cleaning and tidying: installing dplyr
+#install.packages("dplyr")
+library("dplyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+#This highlights some functions (e.g. "filter") will be masked. Keep in mind when doing a filter later.
+#To install code that will make creating data visuals easy
+library("ggplot2", lib.loc="/usr/local/lib/R/3.2/site-library")
+load("/Users/andreafernandes/Desktop/Google Drive/Springboard_Data_Science_Course_2016/RLearning_Springboard_ProjectED/R_Springboard/Rmd_files_and_output/EDclean.RData")
+EDclean %>% summarise(Min = min(ethnicdensityscore, na.rm=TRUE),
+Median = median(ethnicdensityscore, na.rm=TRUE),
+Mean = mean(ethnicdensityscore, na.rm=TRUE),
+Var = var(ethnicdensityscore, na.rm=TRUE),
+SD = sd(ethnicdensityscore, na.rm=TRUE),
+Max = max(ethnicdensityscore, na.rm=TRUE),
+N = n()) %>%
+print()
+EDclean %>% summarise(Min = min(ethnicdensityscore, na.rm=TRUE),
+Median = median(ethnicdensityscore, na.rm=TRUE),
+Mean = mean(ethnicdensityscore, na.rm=TRUE),
+Var = var(ethnicdensityscore, na.rm=TRUE),
+SD = sd(ethnicdensityscore, na.rm=TRUE),
+Max = max(ethnicdensityscore, na.rm=TRUE),
+N = n()) %>%
+print()
+EDclean %>% summarise(Min = min(ethnicdensityscore, na.rm=TRUE),
+Median = median(ethnicdensityscore, na.rm=TRUE),
+Mean = mean(ethnicdensityscore, na.rm=TRUE),
+Var = var(ethnicdensityscore, na.rm=TRUE),
+SD = sd(ethnicdensityscore, na.rm=TRUE),
+Max = max(ethnicdensityscore, na.rm=TRUE),
+N = n()) %>%
+print()
+# Add a Normal Curve
+x <- EDclean$ethnicdensityscore
+h<-hist(x, breaks=250, col="red", xlab="Ethnic Density Score", main="Histogram with Normal Curve")
+xfit<-seq(min(x),max(x),length=100)
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="blue", lwd=2)
+boxplot(EDclean$ethnicdensityscore, horizontal = TRUE, main = "Total Own-group Ethnic Density Spread")
+qplot(ethnicitycleaned, ethnicdensityscore, data=EDclean, geom=c("boxplot"), main="Ethnic Density Spread by Ethnicity", xlab=" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip()
+# returns the density data
+plot(density(EDclean$ethnicdensityscore, kernel = c("epanechnikov")), main="EthnicDensity Density Plot")
+ggplot(EDclean, aes(x=ethnicdensityscore)) + geom_density(aes(colour=ethnicitycleaned), alpha=1)
+qplot(ethnicdensityscore, data = EDclean, colour=ethnicitycleaned) +
+facet_wrap(~ ethnicitycleaned)
+qplot(ethnicdensityscore, data = EDclean, colour=ethnicitycleaned) +
+facet_wrap(~ ethnicitycleaned)
+qplot(ethnicdensityscore, imd_score, data = EDclean, colour=ethnicitycleaned) +
+facet_wrap(~ ethnicitycleaned)
+EDclean_GenPop <- EDclean %>%
+select(LSOA_4boroughs, WhiteBrit_EDPercent, OtherWhite_EDPercent, WhiteBlackCarib_EDPercent, WhiteAsian_EDPercent,
+OtherMixed_EDPercent, BritIndian_EDPercent,BritPakistani_EDPercent, BritBangladeshi_EDPercent, BritChinese_EDPercent,
+OtherAsian_EDPercent, African_EDPercent, Caribbean_EDPercent, OtherBlack_EDPercent)
+library("tidyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+EDclean_GenPop  <- gather(EDclean_GenPop, EDPercent_Ethnicity, EDPercent, 2:14)
+boxplot(EDclean$WhiteBrit_EDPercent, horizontal = TRUE, main = "Total Own-group Ethnic Density Spread")
+EDclean_WhiteBrit <- filter(EDclean, ethnicitycleaned == "British (A)")
+boxplot(EDclean$WhiteBrit_EDPercent, EDclean_WhiteBrit$ethnicdensityscore,
+horizontal = TRUE,
+names = c("WhiteBrit_GenPop","WhiteBrit_Clinical"),
+col = c("turquoise", "teal")
+EDclean_GenPop  <- gather(EDclean_GenPop, EDPercent_Ethnicity, EDPercent, 2:14)
+EDclean_WhiteBrit <- filter(EDclean, ethnicitycleaned == "British (A)")
+boxplot(EDclean$WhiteBrit_EDPercent, EDclean_WhiteBrit$ethnicdensityscore,
+horizontal = TRUE,
+names = c("WhiteBrit_GenPop","WhiteBrit_Clinical"),
+col = c("turquoise", "teal"),
+main = "Total Own-group Ethnic Density Spread")
+boxplot(EDclean$WhiteBrit_EDPercent, EDclean_WhiteBrit$ethnicdensityscore,
+horizontal = TRUE,
+names = c("WhiteBrit_GenPop","WhiteBrit_Clinical"),
+col = c("turquoise", "blue"),
+main = "Total Own-group Ethnic Density Spread")
+EDclean_African <- filter(EDclean, ethnicitycleaned == "African (N)")
+EDclean_African <- filter(EDclean, ethnicitycleaned == "African (N)")
+boxplot(EDclean$African_EDPercent, EDclean_African$ethnicdensityscore,
+horizontal = TRUE,
+names = c("African_GenPop","African_Clinical"),
+col = c("turquoise", "blue"),
+main = "Total Own-group Ethnic Density Spread")
+table(EDclean$ethnicitycleaned)
+names(EDclean)
+EDclean_Caribbean <- filter(EDclean, ethnicitycleaned == "Caribbean (M)")
+boxplot(EDclean$Caribbean_EDPercent, EDclean_Caribbean$ethnicdensityscore,
+horizontal = TRUE,
+names = c("Caribbean_GenPop","Caribbean_Clinical"),
+col = c("turquoise", "blue"),
+main = "Total Own-group Ethnic Density Spread")
+EDclean_GenPopulation <- EDclean %>%
+select(LSOA_4boroughs, WhiteBrit_EDPercent, OtherWhite_EDPercent, WhiteBlackCarib_EDPercent, WhiteAsian_EDPercent, OtherMixed_EDPercent,
+BritIndian_EDPercent,BritPakistani_EDPercent, BritBangladeshi_EDPercent, BritChinese_EDPercent, OtherAsian_EDPercent, African_EDPercent,
+Caribbean_EDPercent, OtherBlack_EDPercent)
+data.frame(head(EDclean_GenPopulation))
+library("tidyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+newtable <- gather(EDclean_GenPopulation, ethnicity, ed_score, 2:14)
+qplot(LSOA_4boroughs, ed_score, data=EDclean_GenPopulation, geom=c("boxplot"), fill = ethnicity, main="SLAM Clinical Ethnic Density Spread by Borough", ylab="Ethnic Density scores", xlab=" ") + theme(axis.text.x = element_text(angle = 360, hjust = 1))
+qplot(LSOA_4boroughs, ed_score, data=newtable, geom=c("boxplot"), fill = ethnicity, main="SLAM Clinical Ethnic Density Spread by Borough", ylab="Ethnic Density scores", xlab=" ") + theme(axis.text.x = element_text(angle = 360, hjust = 1))
+qplot(LSOA_4boroughs, ed_score, data=newtable, geom=c("boxplot"), fill = ethnicity, main="SLAM Clinical Ethnic Density Spread by Borough", ylab="Ethnic Density scores", xlab=" ", horizontal = TRUE) + theme(axis.text.x = element_text(angle = 360, hjust = 1))
+qplot(LSOA_4boroughs, ed_score, data=newtable, geom=c("boxplot"), fill = ethnicity, main="SLAM Clinical Ethnic Density Spread by Borough", ylab="Ethnic Density scores", xlab=" ") + theme(axis.text.x = element_text(angle = 360, hjust = 1)) + coord_flip()
+qplot(LSOA_4boroughs, ethnicdensityscore, data=EDclean, geom=c("boxplot"), fill = ethnicitycleaned, main="SLAM Clinical Ethnic Density Spread by Borough", ylab="Ethnic Density scores", xlab=" ") + theme(axis.text.x = element_text(angle = 360, hjust = 1)) + coord_flip()
+rm(list=ls())
+gc()
+setwd("/Users/andreafernandes/Desktop/Google Drive/Springboard_Data_Science_Course_2016/RLearning_Springboard_ProjectED/R_Springboard/Rmd_files_and_output/")
+#check chunk run
+#runs ok
+library(foreign)
+#install.packages("lubridate")
+library(lubridate)
+#install.packages("dplyr")
+library("dplyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+library("ggplot2", lib.loc="/usr/local/lib/R/3.2/site-library")
+ethnicdensity_df = read.dta("/Users/andreafernandes/Desktop/Google Drive/Springboard_Data_Science_Course_2016/RLearning_Springboard_ProjectED/R_Springboard/Raw_Data/For_Excel.dta")
+##listing the variables in the ethnicdensity_df dataset
+str(ethnicdensity_df)
+##listing the variables in the ethnicdensity_df dataset
+str(ethnicdensity_df)
+##listing the variables in the ethnicdensity_df dataset
+str(ethnicdensity_df)
+EDclean <- tbl_df(ethnicdensity_df)
+print(EDclean)
+##prints number of observation and number of variables
+dim(EDclean)
+###47581 observations, 67 variables
+data.frame(head(EDclean))
+#renaming variables first...
+EDclean <- EDclean %>%
+#Rename each ethnic density column
+rename(TotalResidentsInLSOA = All_Usual_Residents,
+WhiteBrit_EDPercent  = G,
+WhiteIrish_EDPercent = White_Irish_Percentage,
+OtherWhite_EDPercent = White_Other_White_GypsyIrishTrav,
+WhiteBlackCarib_EDPercent = P,
+WhiteBlackAfri_EDPercent = R,
+WhiteAsian_EDPercent = T,
+OtherMixed_EDPercent = V,
+BritIndian_EDPercent = Asian_Asian_British_Indian_Perce,
+BritPakistani_EDPercent = Asian_Asian_British_Pakistani_Pe,
+BritBangladeshi_EDPercent = AB,
+BritChinese_EDPercent = Asian_Asian_British_Chinese_Perc,
+OtherAsian_EDPercent = Asian_Asian_British_OtherAsian_P,
+African_EDPercent = AH,
+Caribbean_EDPercent =  AJ,
+OtherBlack_EDPercent = AL,
+WhiteBrit_Residents = White_English_Welsh_Scottish_Nor,
+TotalIrish_Residents = White_Irish_Count,
+OtherWhite_Residents = White_Gypsy_Irish_Traveller_Coun,
+MixedCaribbean_Residents = Mixed_Multiple_Ethnic_Groups_Whi,
+MixedAsian_Residents = S,
+OtherMixed_Residents = Mixed_Multiple_Ethnic_Groups_Oth,
+BritIndian_Residents = Asian_Asian_British_Indian_Count,
+BritPakistani_Residents = Asian_Asian_British_Pakistani_Co,
+BritBangladeshi_Residents = Asian_Asian_British_Bangladeshi_,
+BritChinese_Residents = Asian_Asian_British_Chinese_Coun,
+OtherAsian_Residents = Asian_Asian_British_OtherAsian_C,
+African_Residents = Black_African_Caribbean_BlackBr,
+Caribbean_Residents = Black_African_Caribbean_Black_Br,
+OtherBlack_Residents = AK,
+OtherEthnicity_Residents = Other_Ethnic_Group_AnyOtherEthni)
+#checking new variables
+data.frame(tail(EDclean))
+dim(EDclean)
+#47581 observations, 43 variables
+#checking new variables
+data.frame(tail(EDclean))
+dim(EDclean)
+#47581 observations, 43 variables
+EDclean <- EDclean %>% mutate(ethnicdensityscore = ifelse(ethnicitycleaned == "British (A)", WhiteBrit_EDPercent,
+ifelse(ethnicitycleaned == "African (N)", African_EDPercent,
+ifelse(ethnicitycleaned == "Irish (B)", WhiteIrish_EDPercent,
+ifelse(ethnicitycleaned == "Any other Asian background (L)", OtherAsian_EDPercent,
+ifelse(ethnicitycleaned == "Any other black background (P)", OtherBlack_EDPercent,
+ifelse(ethnicitycleaned == "Any other mixed background (G)", OtherMixed_EDPercent,
+ifelse(ethnicitycleaned == "Any other white background (C)", OtherWhite_EDPercent,
+ifelse(ethnicitycleaned == "Bangladeshi (K)", BritBangladeshi_EDPercent,
+ifelse(ethnicitycleaned == "Caribbean (M)", Caribbean_EDPercent,
+ifelse(ethnicitycleaned == "Chinese (R)", BritChinese_EDPercent,
+ifelse(ethnicitycleaned == "Indian (H)", BritIndian_EDPercent,
+ifelse(ethnicitycleaned == "Pakistani (J)", BritPakistani_EDPercent,
+ifelse(ethnicitycleaned == "White and Asian (F)", WhiteAsian_EDPercent,
+ifelse(ethnicitycleaned == "White and Black African (E)", WhiteBlackAfri_EDPercent,
+ifelse(ethnicitycleaned == "White and black Caribbean (D)", WhiteBlackCarib_EDPercent,  " " )))))))))))))))) %>%
+mutate(ethnicdensityscore = as.numeric(ethnicdensityscore))
+data.frame(tail(EDclean$ethnicdensityscore))
+#Selecting a few variables from previous EDscores database to clean old and create new date and age variables
+EDclean <- EDclean %>%
+#First format necessary date variables to make sure they are in date format
+mutate(dateofbirth = as.Date(DOB_Cleaned, format = "%d/%m/%y")) %>%
+mutate(diagnosisdate = as.Date(diagnosis_date, format = "%d/%m/%y")) %>%
+mutate(dateofdeath = as.Date(ons_date_of_death, format = "%d/%m/%y")) %>%
+#Then create age at diagnosis and age at Suicide using simple substractions
+mutate(ageatdiagnosis = year(diagnosisdate) - year(dateofbirth)) %>%
+mutate(ageatSuicide = year(dateofdeath) - year(dateofbirth)) %>%
+#Then create an age category group
+mutate(agegroups = ifelse(ageatdiagnosis %in% 0:17, "0-17",
+ifelse(ageatdiagnosis %in% 18:25, "18-25",
+ifelse(ageatdiagnosis %in% 26:40, "26-40",
+ifelse(ageatdiagnosis %in% 41:60, "41-60",
+ifelse(ageatdiagnosis %in% 61:104, "61-100",  "unknown"))))))
+table(EDclean$LSOA_NAME)
+EDclean <- EDclean %>%
+mutate (LSOA_4boroughs = ifelse(grepl("^Southw", EDclean$LSOA_NAME) %in% TRUE, "SOUTHWARK",
+ifelse(grepl("^Croy", EDclean$LSOA_NAME) %in% TRUE, "CROYDON",
+ifelse(grepl("^Lambe", EDclean$LSOA_NAME) %in% TRUE, "LAMBETH",
+ifelse(grepl("^Lewish", EDclean$LSOA_NAME) %in% TRUE, "LEWSIHAM", "OTHER")))))
+data.frame(head((EDclean)))
+table(EDclean$LSOA_NAME)
+EDclean <- EDclean %>%
+mutate (LSOA_4boroughs = ifelse(grepl("^Southw", EDclean$LSOA_NAME) %in% TRUE, "SOUTHWARK",
+ifelse(grepl("^Croy", EDclean$LSOA_NAME) %in% TRUE, "CROYDON",
+ifelse(grepl("^Lambe", EDclean$LSOA_NAME) %in% TRUE, "LAMBETH",
+ifelse(grepl("^Lewish", EDclean$LSOA_NAME) %in% TRUE, "LEWSIHAM", "OTHER")))))
+data.frame(head((EDclean)))
+table(EDclean$LSOA_NAME)
+EDclean <- EDclean %>%
+mutate (LSOA_4boroughs = ifelse(grepl("^Southw", EDclean$LSOA_NAME) %in% TRUE, "SOUTHWARK",
+ifelse(grepl("^Croy", EDclean$LSOA_NAME) %in% TRUE, "CROYDON",
+ifelse(grepl("^Lambe", EDclean$LSOA_NAME) %in% TRUE, "LAMBETH",
+ifelse(grepl("^Lewish", EDclean$LSOA_NAME) %in% TRUE, "LEWSIHAM", "OTHER")))))
+data.frame(head((EDclean)))
+table(EDclean$LSOA_NAME)
+EDclean <- EDclean %>%
+mutate (LSOA_4boroughs = ifelse(grepl("^Southw", EDclean$LSOA_NAME) %in% TRUE, "SOUTHWARK",
+ifelse(grepl("^Croy", EDclean$LSOA_NAME) %in% TRUE, "CROYDON",
+ifelse(grepl("^Lambe", EDclean$LSOA_NAME) %in% TRUE, "LAMBETH",
+ifelse(grepl("^Lewish", EDclean$LSOA_NAME) %in% TRUE, "LEWSIHAM", "OTHER")))))
+data.frame(head((EDclean)))
+table(EDclean$LSOA_4boroughs)
+table(EDclean$Suicide) #263 deaths by suicide
+table(is.na(EDclean$Suicide)) #no NA values
+table(EDclean$ons_date_of_death)
+table(is.na(EDclean$ons_date_of_death)) # 42271 NA values; 5310 date of deaths
+table(EDclean$ethnicdensityscore)
+table(is.na(EDclean$ethnicdensityscore)) #no NA values
+table(EDclean$Suicide) #263 deaths by suicide
+table(is.na(EDclean$Suicide)) #no NA values
+table(EDclean$ons_date_of_death)
+table(is.na(EDclean$ons_date_of_death)) # 42271 NA values; 5310 date of deaths
+table(EDclean$ethnicdensityscore)
+table(is.na(EDclean$ethnicdensityscore)) #no NA values
+table(EDclean$Suicide) #263 deaths by suicide
+table(is.na(EDclean$Suicide)) #no NA values
+table(EDclean$ons_date_of_death)
+table(is.na(EDclean$ons_date_of_death)) # 42271 NA values; 5310 date of deaths
+table(EDclean$ethnicdensityscore)
+table(is.na(EDclean$ethnicdensityscore)) #no NA values
+table(EDclean$Suicide) #263 deaths by suicide
+table(is.na(EDclean$Suicide)) #no NA values
+table(EDclean$ons_date_of_death)
+table(is.na(EDclean$ons_date_of_death)) # 42271 NA values; 5310 date of deaths
+table(EDclean$ethnicdensityscore)
+table(is.na(EDclean$ethnicdensityscore)) #no NA values
+EDclean <- EDclean %>%
+mutate(ons_date_of_death = as.Date(ons_date_of_death, format = "%d/%m/%Y"))
+table(is.na(EDclean$ons_date_of_death))
+str(EDclean)
+EDclean <- EDclean %>%
+mutate(DeathBy = ifelse(Suicide == 1, "Suicide",
+ifelse(year(ons_date_of_death) > 1901 & Suicide == 0, "OtherCause", NA)))
+table(is.na(EDclean$DeathBy)) #there are still NAs, which need to be change to "Not Died"
+EDclean$DeathBy[is.na(EDclean$DeathBy)] <- "NotDied"
+#checking if any of the age values are odd or non-numeric using function "table"
+table(EDclean$ageatdiagnosis)
+#looks ok
+table(EDclean$diagnosisdate)
+#looks ok
+table(EDclean$dateofbirth)
+#looks ok
+#disadvantage of using table function is it does not count "NA" or missing values
+table(EDclean$agegroups)
+#there is one unknown
+#using which to find out which observation has unknonw
+which(EDclean$agegroups == "unknown")
+#it is row number 45501
+filter(EDclean) [45501,]
+filter(EDclean) [45501, 44]
+#i'll leave the faulty row for now
+data.frame(tail(EDclean))
+str(EDclean)
+data.frame(tail(EDclean))
+str(EDclean)
+save(EDclean, file = "EDclean.Rdata")

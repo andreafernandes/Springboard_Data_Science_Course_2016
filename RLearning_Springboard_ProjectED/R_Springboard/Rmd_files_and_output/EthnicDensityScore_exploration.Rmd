@@ -1,0 +1,307 @@
+
+---
+    title: "Ethnic Density Score Spread in 4 London Boroughs"
+    author: "Andrea Fernandes"
+    date: "17 March 2016"
+    output:
+        html_document:
+          toc: true
+          depth: 8
+          theme: spacelab
+          highlight: tango
+---
+
+******
+
+###Background  
+_The ethnic density effect_ is the beneficial mental and physical effect observed (Becares et al, 2010) among individuals of ethnic minority living in areas of higher ethnic minority density (own ethnictiy or overall ethnic minority).   
+  
+Little research has been conducted on how the ethnic density effect impacts on suicidality (Shaw et al, 2012). 
+
+###Definition of Ethnic Density
+Ethnic density is defined as the composition or percentage of each ethnictiy in a given area, usually within the lower super output area (area-level address (Lower Super Output Area; area of 1500 residents)).  This address is recorded closest to their diagnosis date within the observation period.   
+
+Each individual in the cohort has been assigned an ethnic density (a percentage); given their own ethnicity, the area they were living at time of diagnosis, and the ethnic density in that area.
+
+
+###Calculating Ethnic Density Scores or Percentages
+In a given LSOA (of a total of 1500 people) there are 500 Individuals of Indian descent, 250 of British descent and 750 of African descent.  
+  
+A person of Indian descent living in the area would have an ethnic density score of 100*(500/1500) = 33.3%  
+  
+A person of Chinese descent living in the area would have an ethnic density score of 100*(0/1500) = 0%  
+  
+A person of African descent living in the area would have an ethnic density score of 100*(750/1500) = 50%  
+  
+A person of British descent living in the area would have an ethnic density score of 100*(250/1500) = 16.6%    
+
+
+###Dataset description
+
+The dataset in use, is sourced from a specialist mental wellbeing trust. The trust is local to four boroughs in South East London: Croydon, Lewisham, Lambeth and Southwark. Cause of death and Ethnic Density data was linked to the existing database from census database. 
+
+
+###Aim of Project
+
+This project uses clinical psychiatric data to measure ethnic density at diagnosis, and explore its effect on deaths by suicide.   
+
+******
+
+####Objective of this Rmd  
+  
+Use cleaned dataset to further explore ethnic density.     
+  
+******
+
+```{r Chunk1: Cleaning the slate, results="hide", eval=TRUE, echo=FALSE}
+## Standard practice before starting anything on Rmd file. 
+
+### 1) Cleaning the slate: Clearing history and setting wd before doing anything. 
+      #Command to clear old history - always do this
+    rm(list=ls())
+    gc()
+```
+
+
+
+
+```{r Chunk2, echo=FALSE}
+      #Always set working directory using setwd ("/a/b/c/").
+      #DOUBLE CHECK the file path of where you want to save your work,
+      #and check by running the chunk, to make sure if runs without errors.
+      
+      setwd("/Users/andreafernandes/Desktop/Google Drive/Springboard_Data_Science_Course_2016/RLearning_Springboard_ProjectED/R_Springboard/Rmd_files_and_output/")
+
+#check chunk run
+#runs ok
+```
+
+
+
+
+
+```{r Chunk3, results="hide", warning=FALSE, eval=TRUE, echo=FALSE}
+### 2) Package installation: Install any required packages and the standard ones
+
+      #This is for installing package to read STATA files
+    
+    library(foreign)
+```
+
+
+
+
+```{r Chunk4, results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+      # For date management: installing lubridate
+      # http://www.r-bloggers.com/lubridate-working-with-date-and-time-in-r/
+        #install.packages("lubridate")
+    library(lubridate)
+```
+
+
+
+```{r Chunk5, installing dplyr, results="hide", eval=TRUE, echo=FALSE, message=FALSE}
+    #For data cleaning and tidying: installing dplyr
+     #install.packages("dplyr")
+    library("dplyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+    #This highlights some functions (e.g. "filter") will be masked. Keep in mind when doing a filter later. 
+```
+
+
+      
+```{r Chunk6, installing ggplot, results="hide", eval=TRUE, echo=FALSE} 
+    #To install code that will make creating data visuals easy
+    library("ggplot2", lib.loc="/usr/local/lib/R/3.2/site-library")
+```
+
+
+
+
+#### Load Cleaned data
+Load using: load("./EDclean.RData")
+Note: it helps to name the RData file and dataset to save the same name.
+```{r Chunk7, Read in the data, results="hide"}
+load("/Users/andreafernandes/Desktop/Google Drive/Springboard_Data_Science_Course_2016/RLearning_Springboard_ProjectED/R_Springboard/Rmd_files_and_output/EDclean.RData")
+```
+
+------
+
+
+
+**Have a look at the ethnic density score data.**  
+
+Summary of the Spread  
+```{r Chunk 8, echo=TRUE}
+EDclean %>% summarise(Min = min(ethnicdensityscore, na.rm=TRUE),
+            Median = median(ethnicdensityscore, na.rm=TRUE),
+            Mean = mean(ethnicdensityscore, na.rm=TRUE),
+            Var = var(ethnicdensityscore, na.rm=TRUE),
+            SD = sd(ethnicdensityscore, na.rm=TRUE),
+            Max = max(ethnicdensityscore, na.rm=TRUE),
+            N = n()) %>%
+          print()
+```
+
+```{r}
+# Add a Normal Curve
+x <- EDclean$ethnicdensityscore
+h<-hist(x, breaks=250, col="red", xlab="Ethnic Density Score", main="Histogram with Normal Curve")
+xfit<-seq(min(x),max(x),length=100)
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="blue", lwd=2) 
+```
+
+
+Plotting Ethnic Density score   
+```{r}
+boxplot(EDclean$ethnicdensityscore, horizontal = TRUE, main = "Total Own-group Ethnic Density Spread")
+```
+
+
+**Have a look at ethnic density score by each ethnic group**
+```{r}
+qplot(ethnicitycleaned, ethnicdensityscore, data=EDclean, geom=c("boxplot"), main="Ethnic Density Spread by Ethnicity", xlab=" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip()
+```
+
+```{r, fig.width = 15, fig.height = 15}
+# returns the density data
+plot(density(EDclean$ethnicdensityscore, kernel = c("epanechnikov")), main="EthnicDensity Density Plot") 
+
+ggplot(EDclean, aes(x=ethnicdensityscore)) + geom_density(aes(colour=ethnicitycleaned), alpha=1)
+```
+
+
+```{r, fig.width = 15, fig.height = 15}
+qplot(ethnicdensityscore, data = EDclean, colour=ethnicitycleaned) +
+facet_wrap(~ ethnicitycleaned)
+```
+
+**From the plots, what can you say about the ethnic density distribution?**
+
+        i) Of the individuals known to mental health services, more than half live in areas of low ethnic density. 
+
+        ii) Individuals of the ethnic minority groups tend to live in areas of low ethnic density.
+        
+        iii) The ethnic density spread is not exactly a normal curve? 
+        
+        iv) This could be an indication that individuals of ethnic minority do not necessarily live in areas of low ethnic density.
+
+
+------
+
+
+
+There's been some research to suggest that ethnic minority living in higher areas of ethnic density are also more deprived.
+
+**Does area-level deprivation correlate with ethnic density?**
+
+```{r, fig.width = 15, fig.height = 15}
+qplot(ethnicdensityscore, imd_score, data = EDclean, colour=ethnicitycleaned) +
+facet_wrap(~ ethnicitycleaned)
+
+```
+
+
+  
+------  
+  
+
+
+This is a representation of the ethnic density in clinical cohort. **Does this distribution also reflect in non-clinical sample?**
+
+Use existing data to compare ethnic density score spread in clinical cohort versus general population cohort.
+
+Code to select Non clinical dataset
+```{r}
+
+EDclean_GenPop <- EDclean %>% 
+                        select(LSOA_4boroughs, WhiteBrit_EDPercent, OtherWhite_EDPercent, WhiteBlackCarib_EDPercent, WhiteAsian_EDPercent,
+                               OtherMixed_EDPercent, BritIndian_EDPercent,BritPakistani_EDPercent, BritBangladeshi_EDPercent, BritChinese_EDPercent,
+                               OtherAsian_EDPercent, African_EDPercent, Caribbean_EDPercent, OtherBlack_EDPercent)
+
+```
+
+```{r, echo=FALSE, results="hide"}
+library("tidyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+EDclean_GenPop  <- gather(EDclean_GenPop, EDPercent_Ethnicity, EDPercent, 2:14)
+EDclean_WhiteBrit <- filter(EDclean, ethnicitycleaned == "British (A)")
+```
+
+
+  
+------
+
+
+
+Basic comparisons
+```{r}
+boxplot(EDclean$WhiteBrit_EDPercent, EDclean_WhiteBrit$ethnicdensityscore, 
+        horizontal = TRUE, 
+        names = c("WhiteBrit_GenPop","WhiteBrit_Clinical"),
+        col = c("turquoise", "blue"),
+        main = "White British Ethnic Density Spread")
+
+EDclean_African <- filter(EDclean, ethnicitycleaned == "African (N)")
+
+boxplot(EDclean$African_EDPercent, EDclean_African$ethnicdensityscore, 
+        horizontal = TRUE, 
+        names = c("African_GenPop","African_Clinical"),
+        col = c("turquoise", "blue"),
+        main = "Black British and African Ethnic Density Spread")
+
+
+
+EDclean_Caribbean <- filter(EDclean, ethnicitycleaned == "Caribbean (M)")
+
+boxplot(EDclean$Caribbean_EDPercent, EDclean_Caribbean$ethnicdensityscore, 
+        horizontal = TRUE, 
+        names = c("Caribbean_GenPop","Caribbean_Clinical"),
+        col = c("turquoise", "blue"),
+        main = "Caribbean Ethnic Density Spread")
+```
+
+
+
+```{r, echo=TRUE, results="hide"}
+EDclean_GenPopulation <- EDclean %>% 
+                          select(LSOA_4boroughs, WhiteBrit_EDPercent, OtherWhite_EDPercent, WhiteBlackCarib_EDPercent, WhiteAsian_EDPercent, OtherMixed_EDPercent, 
+                                 BritIndian_EDPercent,BritPakistani_EDPercent, BritBangladeshi_EDPercent, BritChinese_EDPercent, OtherAsian_EDPercent, African_EDPercent, 
+                                 Caribbean_EDPercent, OtherBlack_EDPercent)
+
+data.frame(head(EDclean_GenPopulation))
+
+library("tidyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+newtable <- gather(EDclean_GenPopulation, ethnicity, ed_score, 2:14)
+```
+
+
+A comparison of Ethnic Density Spread in Clinical vs Non Clinical Samples by Borough
+
+```{r, Chunkxyz, echo=FALSE, results="hide"}
+qplot(LSOA_4boroughs, ed_score, data=newtable, geom=c("boxplot"), fill = ethnicity, main="SLAM Clinical Ethnic Density Spread by Borough", ylab="Ethnic Density scores", xlab=" ") + theme(axis.text.x = element_text(angle = 360, hjust = 1)) + coord_flip()
+
+qplot(LSOA_4boroughs, ethnicdensityscore, data=EDclean, geom=c("boxplot"), fill = ethnicitycleaned, main="SLAM Clinical Ethnic Density Spread by Borough", ylab="Ethnic Density scores", xlab=" ") + theme(axis.text.x = element_text(angle = 360, hjust = 1)) + coord_flip()
+
+```
+
+```{r, fig.width = 15, fig.height = 15}
+
+qplot(ethnicity,ed_score, data=newtable, colour = ethnicity, geom = "boxplot") + facet_wrap(~ LSOA_4boroughs) + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+qplot(ethnicitycleaned,ethnicdensityscore, data=EDclean, colour = ethnicitycleaned, geom = "boxplot") + facet_wrap(~ LSOA_4boroughs) + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+```
+
+
+```{r Chunk 21}
+
+CroydonMH <- filter(EDclean, LSOA_4boroughs == "Croydon")
+CroydonGP <- filter(newtable, LSOA_4boroughs == "Croydon")
+
+qplot(ethnicity,ed_score, data=CroydonGP, colour = ethnicity, geom = "boxplot") + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+qplot(ethnicitycleaned,ethnicdensityscore, data=CroydonMH, colour = ethnicitycleaned, geom = "boxplot") + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```

@@ -1,0 +1,288 @@
+---
+title: "CapstoneProj"
+output: html_document
+---
+```{r}
+## clear old history - always do this
+rm(list=ls())
+gc()
+
+setwd("//Users//andreafernandes//Google Drive//Springboard_Data_Science_Course_2016//RLearning_Springboard_ProjectED//")
+##this is for installing package to read STATA files
+library(foreign)
+#for date management
+#http://www.r-bloggers.com/lubridate-working-with-date-and-time-in-r/
+#install.packages("lubridate")
+library(lubridate)
+#install.packages("dplyr")
+library("dplyr", lib.loc="/usr/local/lib/R/3.2/site-library")
+library("ggplot2", lib.loc="/usr/local/lib/R/3.2/site-library")
+```
+
+
+```{r}
+##ethnicdensity.df is name of my ethnic density database
+##read dta is the package that will read dta file. 
+ethnicdensity.df = read.dta("//Users//andreafernandes//Google Drive//Springboard_Data_Science_Course_2016//RLearning_Springboard_ProjectED//For_Excel.dta")
+
+##selecting a first three rows and first four columns of the data
+str(ethnicdensity.df)
+
+ED <-tbl_df(ethnicdensity.df)
+dim(ED)
+
+#ED
+#47581 X 67
+
+#print(ED, n =20)
+data.frame(head(ED))
+
+EDclean <- ED %>% 
+  #Rename each ethnic density column
+      rename(WhiteBrit_ED  = G , WhiteIrish_ED = White_Irish_Percentage, OtherWhite_ED = White_Other_White_GypsyIrishTrav, WhiteBlackCaribbean_ED = P, WhiteBlackAfrican_ED = R, WhiteAsian_ED = T, OtherMixed_ED = V, BritIndian_ED = Asian_Asian_British_Indian_Perce, BritPakistani_ED = Asian_Asian_British_Pakistani_Pe, BritBangladeshi_ED = AB, BritChinese_ED = Asian_Asian_British_Chinese_Perc, 
+OtherAsian_ED = Asian_Asian_British_OtherAsian_P, African_ED = AH, Caribbean_ED =  AJ, OtherBlack_ED = AL) %>%
+  #get rid of ethnic density counts columns
+            select(-All_Usual_Residents, -White_English_Welsh_Scottish_Nor, -White_Irish_Count, -White_Gypsy_Irish_Traveller_Coun, -White_Gypsy_Irish_Traveller_Perc, -White_Other_White_Count, -White_Other_White_Percentage, -Mixed_Multiple_Ethnic_Groups_Whi, -S, -Mixed_Multiple_Ethnic_Groups_Oth, -Asian_Asian_British_Indian_Count, -Asian_Asian_British_Pakistani_Co, -Asian_Asian_British_Bangladeshi_, -Asian_Asian_British_Chinese_Coun, -Asian_Asian_British_OtherAsian_C, -Black_African_Caribbean_BlackBr, -Black_African_Caribbean_Black_Br,  -AK, -Other_Ethnic_Group_Arab_Count, -Other_Ethnic_Group_Arab_Percenta, -Other_Ethnic_Group_AnyOtherEthni, -AP, -C, -D) 
+
+#checking new vars
+data.frame(tail(EDclean))
+
+
+#assign (and store) each ID with their own ethnic density percentage based on their ethnicity
+#e.g. if ID is caribbean, then assign Caribbean_ED value.
+EDscores <- EDclean %>% mutate(ethnicdensityscore = ifelse(ethnicitycleaned == "British (A)", WhiteBrit_ED, 
+                          ifelse(ethnicitycleaned == "African (N)", African_ED, 
+                          ifelse(ethnicitycleaned == "Irish (B)", WhiteIrish_ED, 
+                          ifelse(ethnicitycleaned == "Any other Asian background (L)", OtherAsian_ED, 
+                          ifelse(ethnicitycleaned == "Any other black background (P)", OtherBlack_ED,
+                          ifelse(ethnicitycleaned == "Any other mixed background (G)", OtherMixed_ED,
+                          ifelse(ethnicitycleaned == "Any other white background (C)", OtherWhite_ED,
+                          ifelse(ethnicitycleaned == "Bangladeshi (K)", BritBangladeshi_ED, 
+                          ifelse(ethnicitycleaned == "Caribbean (M)", Caribbean_ED,
+                          ifelse(ethnicitycleaned == "Chinese (R)", BritChinese_ED,
+                          ifelse(ethnicitycleaned == "Indian (H)", BritIndian_ED,
+                          ifelse(ethnicitycleaned == "Pakistani (J)", BritPakistani_ED,
+                          ifelse(ethnicitycleaned == "White and Asian (F)", WhiteAsian_ED,
+                          ifelse(ethnicitycleaned == "White and Black African (E)", WhiteBlackAfrican_ED,
+                          ifelse(ethnicitycleaned == "White and black Caribbean (D)", WhiteBlackCaribbean_ED,  " " )))))))))))))))) %>%
+              mutate(ethnicdensityscore = as.numeric(ethnicdensityscore)) 
+#%>% group_by(ethnicitycleaned)
+
+head(EDscores)
+str(EDscores)
+names(EDscores)
+dim(EDscores)
+
+```
+
+
+```{r}
+#age
+
+EDTable <- EDscores %>% select(DOB_Cleaned, diagnosis_date, Suicide, Gender_Cleaned, ons_date_of_death, imd_score) %>%
+  mutate(dateofbirth = as.Date(DOB_Cleaned, format = "%d/%m/%y")) %>% 
+  mutate(diagnosisdate = as.Date(diagnosis_date, format = "%d/%m/%y")) %>%
+  mutate(dateofdeath = as.Date(ons_date_of_death, format = "%d/%m/%y")) %>%
+  mutate(ageatdiagnosis = year(diagnosisdate) - year(dateofbirth)) %>%
+  mutate(ageatSuicide = year(dateofdeath) - year(dateofbirth))
+
+#%>% summarise(mean(age))
+          
+table(EDTable$ageatdiagnosis)
+table(EDTable$diagnosisdate)
+table(EDTable$dateofbirth)
+
+EDTable_Test <- EDTable %>%
+         mutate(agegroups = ifelse(ageatdiagnosis %in% 0:17, "0-17",
+                            ifelse(ageatdiagnosis %in% 18:25, "18-25",
+                            ifelse(ageatdiagnosis %in% 26:40, "26-40",
+                            ifelse(ageatdiagnosis %in% 41:60, "41-60",
+                            ifelse(ageatdiagnosis %in% 61:104, "61-100",  "unknown")))))) 
+table(EDTable_Test$agegroups)
+which(EDTable_Test$agegroups == "unknown")
+EDTable_Test[45501,]
+
+EDTable_Test <- EDTable[-45501,]
+
+EDTable_Test <- EDTable[-45501,] %>%
+         mutate(agegroups = ifelse(ageatdiagnosis %in% 0:17, "0-17",
+                            ifelse(ageatdiagnosis %in% 18:25, "18-25",
+                            ifelse(ageatdiagnosis %in% 26:40, "26-40",
+                            ifelse(ageatdiagnosis %in% 41:60, "41-60",
+                            ifelse(ageatdiagnosis %in% 61:104, "61-100",  "unknown")))))) 
+which(EDTable_Test$agegroups == "unknown")
+#select age groups and suicide
+EDTable_Test %>% select(agegroups, Suicide) %>%
+  group_by(agegroups) %>%
+  tally(Suicide)
+
+
+str(EDTable_Test)
+## count age groups
+# dplyr dont like characters chr so i need to use count()
+
+res1 <- EDTable_Test %>% 
+  select(Suicide, agegroups) %>% 
+  count(agegroups)
+
+res2 <- EDTable_Test %>%
+  select(Suicide, agegroups) %>%
+  group_by(agegroups) %>% 
+  tally(Suicide)
+
+# left_join : merge data 
+counts_agegroup_by_suicide <- left_join(res1, res2, by = "agegroups")
+colnames(counts_agegroup_by_suicide) <- c("agegroups", "Total","Suicide")
+counts_agegroup_by_suicide
+
+#View((counts_agegroup_by_suicide))
+```
+
+```{r}
+EDscores %>%
+  select(Suicide, ethnicitycleaned) %>%
+    group_by (ethnicitycleaned) %>%
+      summarise(EthnicityCount = n(), sum = sum(Suicide))
+
+ # this bit does counts of Suicide by each ethnic group
+EDscores %>%
+  select(Suicide, ethnicitycleaned) %>%
+  group_by (ethnicitycleaned) %>%
+  tally()
+```
+
+```{r}
+#ETHNIC density scores
+#to summarise ethnic density(ED) scores  
+  ED_summarise_output <- EDscores %>% summarise(Min = min(ethnicdensityscore, na.rm=TRUE),
+            Median = median(ethnicdensityscore, na.rm=TRUE),
+            Mean = mean(ethnicdensityscore, na.rm=TRUE),
+            Var = var(ethnicdensityscore, na.rm=TRUE),
+            SD = sd(ethnicdensityscore, na.rm=TRUE),
+            Max = max(ethnicdensityscore, na.rm=TRUE),
+            N = n())
+  
+print(ED_summarise_output)
+
+```
+
+
+
+```{r Data Visuals}
+#install.packages("ggplot2")
+#require and library do the same thing
+#require(ggplot2)
+library(ggplot2)
+qplot(data=EDscores,x=EDscores$ethnicdensityscore, main= "EthnicDensity") 
+#a
+
+plot(EDscores$imd_score)
+
+table(EDscores$Gender_Cleaned)
+table(EDscores$Marital_Cleaned)
+table(EDscores$primary_diagnosis)
+table(EDscores$Schizophrenia_Diag)
+table(EDscores$ethnicitycleaned)
+table(EDscores$Suicide)
+
+#qplot(data=EDscores,x=EDscores$ethnicdensityscore,y=EDscores$ethnicitycleaned,log="xy",color= Type, facets = EDscores$ethnicitycleaned)
+
+#qplot()
+#The qplot() function can be used to create the most common graph types. #While it does not expose ggplot's full power, it can create a very wide #range of useful plots. The format is:
+#qplot(x, y, data=, color=, shape=, size=, alpha=, geom=, method=, #formula=, facets=, xlim=, ylim= xlab=, ylab=, main=, sub=) 
+
+qplot(ethnicitycleaned, ethnicdensityscore, data=EDscores, geom=c("boxplot"), main="Ethnic Density Score by Ethnicity",
+   ylab="ethnic density scores", xlab="ethnic groups") + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+qplot(Suicide, ethnicdensityscore, data=EDscores, geom=c("boxplot"),
+   fill=Suicide, main=" ",
+   xlab="", ylab="ethnicdensityscores") 
+
+#qplot(data=EDscores,x=log(EDscores$ethnicdensityscore),y=log(EDscores$ethnicitycleaned), color = "Tribe", facets = EDscores$ethnicitycleaned)
+
+
+#Plotting Suicide
+barplot(table(EDscores$Suicide), main="Suicide versus No Suicide", xlab="Suicide")
+plot(EDscores$ethnicdensityscore)
+
+
+
+#among people who died by suicide
+ED_Suicide <- EDscores %>% 
+                          mutate(Suicide = as.numeric(Suicide)) 
+
+ED_Suicide_only <- filter(ED_Suicide, Suicide == 1) 
+names(ED_Suicide_only)
+plot(ED_Suicide_only$ethnicdensityscore)
+plot(ED_Suicide_only$imd_score)
+
+
+qplot(ethnicitycleaned, ethnicdensityscore, data=ED_Suicide_only, geom=c("boxplot"),
+   fill=ethnicitycleaned, main="",
+   xlab="", ylab="ethnicdensityscores") 
+
+
+
+
+qplot(ethnicdensityscore, ethnicitycleaned ,
+      data=ED_Suicide, 
+      #geom=c("jitter"),
+      #fill=ethnicitycleaned, 
+      main="",
+      xlab="ethnicdensityscores", 
+      ylab="ethnicitycleaned") + facet_grid(Suicide ~ .)
+
+
+
+qplot(ethnicdensityscore, Gender_Cleaned,
+      data=ED_Suicide, 
+      geom=c("jitter"),
+      fill=Gender_Cleaned, 
+      main="",
+      xlab="ethnicdensityscores", 
+      ylab="gender") + facet_grid(Suicide ~ .)
+
+
+
+qplot(agegroups, Gender_Cleaned,
+      data=EDTable_Test, 
+      geom=c("jitter"),
+      fill="Gender_Cleaned", 
+      main="",
+      xlab="ageatdiagnosis", 
+      ylab="gender") + facet_grid(Suicide ~ .)
+
+
+
+qplot(ageatSuicide, Gender_Cleaned,
+      data=EDTable_Test, 
+      geom=c("jitter"),
+      fill="Gender_Cleaned", 
+      main="",
+      xlab="ageatSuicide", 
+      ylab="gender") + facet_grid(Suicide ~ .)
+
+
+
+
+qplot(ageatdiagnosis, Gender_Cleaned,
+      data=EDTable_Test, 
+      geom=c("jitter"),
+      #fill="Gender_Cleaned", 
+      main="",
+      xlab="ageatdiagnosis", 
+      ylab="gender") + facet_grid(Suicide ~ .)
+
+
+
+
+qplot(ageatSuicide, imd_score,
+      data=EDTable_Test, 
+      geom=c("jitter"),
+      #fill="Gender_Cleaned", 
+      main="",
+      xlab="Area Deprivation", 
+      ylab="Age At Death") + facet_grid(Suicide ~ .)
+
+```
